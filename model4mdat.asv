@@ -1,0 +1,27 @@
+function cost = model4mdat(x,sDat,mDat,pDat,tDat,as,bs) 
+
+am = x(1); 
+bm = x(2);
+gs = x(3); 
+ap = x(4); 
+bp = x(5); 
+
+
+m0 = mDat(1);  
+s0 = sDat(1); 
+p0 = pDat(1); 
+
+
+[Tout,Yout] = ode45(@(t,x) mdat4(t,x,am,bm,gs,sDat,tDat),tDat,m0);   
+
+function dm = mdat4(t,x,am,bm,gs,sDat,tDat) 
+I = find(abs(t-tDat)<1); 
+s = sDat(I); 
+dm = am - bm*x - gs*x*s; 
+end
+
+
+
+cost = norm(Yout-mDat)^2; 
+end
+ 

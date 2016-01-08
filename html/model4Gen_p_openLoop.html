@@ -1,0 +1,458 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>model4Gen_p_openLoop</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-01-23"><meta name="DC.source" content="model4Gen_p_openLoop.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Initialization</a></li><li><a href="#3">Parameter Estimation  for miRNA</a></li><li><a href="#4">Parameter estimation for mRNA</a></li><li><a href="#5">Running ODE model</a></li><li><a href="#6">Optional Section (plotting open loop with current parameters)</a></li><li><a href="#7">Optional Section (plotting open loop with updated parameters)</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%             Model Fitting IFFL with ODE45</span>
+<span class="comment">%                                  Sumit Mukherjee</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+clc;
+clear;
+close <span class="string">all</span>;
+</pre><h2>Initialization<a name="2"></a></h2><pre class="codeinput">mRange = <span class="string">'D152:D157'</span>;
+sRange = <span class="string">'D8:D13'</span>;
+tRange = <span class="string">'C8:C13'</span>;
+pRange = <span class="string">'D14:D19'</span>;
+datFile = <span class="string">'AlexIFFLdata.xls'</span>;
+savName = <span class="string">'IFFL_Alex_pv_FISH'</span>;
+
+<span class="comment">% Open loop data</span>
+
+mORange = <span class="string">'D146:D151'</span>;
+sORange = <span class="string">'D26:D31'</span>;
+tORange = <span class="string">'C26:C31'</span>;
+pORange = <span class="string">'D32:D37'</span>;
+
+mDat = xlsread(datFile,mRange);
+sDat = xlsread(datFile,sRange);
+tDat = xlsread(datFile,tRange);
+pDat = xlsread(datFile,pRange);
+
+mODat = xlsread(datFile,mORange);
+sODat = xlsread(datFile,sORange);
+tODat = xlsread(datFile,tORange);
+pODat = xlsread(datFile,pORange);
+</pre><h2>Parameter Estimation  for miRNA<a name="3"></a></h2><pre class="codeinput">xMin = [0 .02];
+xMax = [500 .04];
+<span class="comment">% xMax = 1e3*ones(4,1);</span>
+<span class="comment">% phi = [am bm gs as bs];</span>
+
+x0 = [ 45 .03];
+
+options=optimset(<span class="string">'Algorithm'</span>,<span class="string">'active-set'</span>,<span class="string">'MaxFunEvals'</span>,1e6,<span class="string">'MaxIter'</span>,1e6,<span class="string">'TolCon'</span>,1e-9,<span class="string">'TolFun'</span>,1e-9,<span class="string">'TolX'</span>,1e-9);
+
+x = fmincon(@(x) model4sdat(x,sDat,tDat),x0,[],[],[],[],xMin,xMax,[],options);
+
+
+as = x(1);
+bs = x(2);
+</pre><pre class="codeoutput">
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the predicted change in the objective function
+is less than the selected value of the function tolerance and constraints 
+are satisfied to within the selected value of the constraint tolerance.
+
+
+
+No active inequalities.
+</pre><h2>Parameter estimation for mRNA<a name="4"></a></h2><pre class="codeinput">yMin = [100 .01 0 0 .001];
+yMax = [3000 .5 .001 5000 1];
+
+y0 = [248 .19 3.2256e-4 45 .03];
+
+y = fmincon(@(y) model4mpdat(y,sDat,mDat,pDat,tDat,as,bs),y0,[],[],[],[],yMin,yMax,[],options);
+
+am = y(1);
+bm = y(2);
+gs = y(3);
+ap = y(4);
+bp = y(5);
+
+
+<span class="comment">%  am = 248.5884;</span>
+<span class="comment">%  bm = .185;</span>
+<span class="comment">%  gs = 3.0256e-4;</span>
+</pre><pre class="codeoutput">
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the predicted change in the objective function
+is less than the selected value of the function tolerance and constraints 
+are satisfied to within the selected value of the constraint tolerance.
+
+
+
+Active inequalities (to within options.TolCon = 1e-09):
+  lower      upper     ineqlin   ineqnonlin
+               3                      
+</pre><h2>Running ODE model<a name="5"></a></h2><p>ap = 1.7186; bp = .03;</p><pre class="codeinput">TLim = 100;
+
+x0 = [mDat(1); sDat(1); pDat(1)];
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,am,bm,gs,as,bs,ap,bp),[0 TLim],x0);
+
+figure(4)
+plot(Tout,Yout(:,1),tDat,mDat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'m Sim'</span>,<span class="string">'m Real'</span>);
+
+figure(5)
+plot(Tout,Yout(:,2),tDat,sDat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'s Sim'</span>,<span class="string">'s Real'</span>);
+
+figure(6)
+plot(Tout,Yout(:,3),tDat,pDat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'p Sim'</span>,<span class="string">'p Real'</span>);
+
+mkdir(savName);
+saveas(4,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4mRNACont.jpg'</span>));
+saveas(5,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4miRNACont.jpg'</span>));
+saveas(6,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4pCont.jpg'</span>));
+
+
+save(strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4params'</span>),<span class="string">'am'</span>,<span class="string">'bm'</span>,<span class="string">'gs'</span>,<span class="string">'ap'</span>,<span class="string">'bp'</span>,<span class="string">'as'</span>,<span class="string">'bs'</span>);
+</pre><pre class="codeoutput">Warning: Directory already exists. 
+</pre><img vspace="5" hspace="5" src="model4Gen_p_openLoop_01.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_02.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_03.png" alt=""> <h2>Optional Section (plotting open loop with current parameters)<a name="6"></a></h2><pre class="codeinput">TLim = 100;
+
+x0 = [mODat(1); sODat(1); pODat(1)];
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,am,bm,0,as,bs,ap,bp),[0 TLim],x0);
+
+figure(7)
+plot(Tout,Yout(:,1),tODat,mODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'m Sim'</span>,<span class="string">'m Real'</span>);
+
+figure(8)
+plot(Tout,Yout(:,2),tODat,sODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'s Sim'</span>,<span class="string">'s Real'</span>);
+
+figure(9)
+plot(Tout,Yout(:,3),tODat,pODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'p Sim'</span>,<span class="string">'p Real'</span>);
+
+mkdir(savName);
+saveas(7,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4mRNAopenCont.jpg'</span>));
+saveas(8,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4miRNAopenCont.jpg'</span>));
+saveas(9,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4popenCont.jpg'</span>));
+</pre><pre class="codeoutput">Warning: Directory already exists. 
+</pre><img vspace="5" hspace="5" src="model4Gen_p_openLoop_04.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_05.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_06.png" alt=""> <h2>Optional Section (plotting open loop with updated parameters)<a name="7"></a></h2><pre class="codeinput"><span class="comment">%parameter estimation for mRNA</span>
+yMin = [100 bm 0 0 bp];
+yMax = [3000 bm 0 5000 bp];
+
+y0 = [248 bm 0 45 bp];
+
+y = fmincon(@(y) model4mpdat(y,sODat,mODat,pODat,tODat,as,bs),y0,[],[],[],[],yMin,yMax,[],options);
+
+amo = y(1);
+bmo = y(2);
+gso = y(3);
+apo = y(4);
+bpo = y(5);
+
+<span class="comment">% plotting</span>
+
+TLim = 100;
+
+x0 = [mODat(1); sODat(1); pODat(1)];
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,amo,bmo,gso,as,bs,apo,bpo),[0 TLim],x0);
+
+figure(10)
+plot(Tout,Yout(:,1),tODat,mODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'m Sim'</span>,<span class="string">'m Real'</span>);
+
+figure(11)
+plot(Tout,Yout(:,2),tODat,sODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'s Sim'</span>,<span class="string">'s Real'</span>);
+
+figure(12)
+plot(Tout,Yout(:,3),tODat,pODat,<span class="string">'LineWidth'</span>,3);
+xlabel(<span class="string">'Time (hours)'</span>); ylabel(<span class="string">'Conc.'</span>);
+legend(<span class="string">'p Sim'</span>,<span class="string">'p Real'</span>);
+
+<span class="comment">% Saving stuff</span>
+
+mkdir(savName);
+saveas(10,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4mRNAopenContUpdated.jpg'</span>));
+saveas(11,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4miRNAopenContUpdated.jpg'</span>));
+saveas(12,strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4popenContUpdated.jpg'</span>));
+
+save(strcat(<span class="string">'.\'</span>,savName,<span class="string">'\model4paramsUpdated'</span>),<span class="string">'amo'</span>,<span class="string">'bmo'</span>,<span class="string">'gso'</span>,<span class="string">'apo'</span>,<span class="string">'bpo'</span>,<span class="string">'as'</span>,<span class="string">'bs'</span>);
+</pre><pre class="codeoutput">
+Local minimum possible. Constraints satisfied.
+
+fmincon stopped because the predicted change in the objective function
+is less than the selected value of the function tolerance and constraints 
+are satisfied to within the selected value of the constraint tolerance.
+
+
+
+Active inequalities (to within options.TolCon = 1e-09):
+  lower      upper     ineqlin   ineqnonlin
+    2          2                      
+    3          3                      
+    5          5                      
+Warning: Directory already exists. 
+</pre><img vspace="5" hspace="5" src="model4Gen_p_openLoop_07.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_08.png" alt=""> <img vspace="5" hspace="5" src="model4Gen_p_openLoop_09.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             Model Fitting IFFL with ODE45 
+%                                  Sumit Mukherjee 
+%
+%         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc; 
+clear; 
+close all; 
+
+%%                      Initialization
+
+mRange = 'D152:D157';
+sRange = 'D8:D13'; 
+tRange = 'C8:C13';
+pRange = 'D14:D19';
+datFile = 'AlexIFFLdata.xls';
+savName = 'IFFL_Alex_pv_FISH'; 
+
+% Open loop data 
+
+mORange = 'D146:D151';
+sORange = 'D26:D31'; 
+tORange = 'C26:C31';
+pORange = 'D32:D37';
+
+mDat = xlsread(datFile,mRange); 
+sDat = xlsread(datFile,sRange);
+tDat = xlsread(datFile,tRange);
+pDat = xlsread(datFile,pRange);
+
+mODat = xlsread(datFile,mORange); 
+sODat = xlsread(datFile,sORange);
+tODat = xlsread(datFile,tORange);
+pODat = xlsread(datFile,pORange);
+
+
+%%                     Parameter Estimation  for miRNA
+
+xMin = [0 .02]; 
+xMax = [500 .04]; 
+% xMax = 1e3*ones(4,1); 
+% phi = [am bm gs as bs];
+
+x0 = [ 45 .03]; 
+
+options=optimset('Algorithm','active-set','MaxFunEvals',1e6,'MaxIter',1e6,'TolCon',1e-9,'TolFun',1e-9,'TolX',1e-9);
+
+x = fmincon(@(x) model4sdat(x,sDat,tDat),x0,[],[],[],[],xMin,xMax,[],options); 
+
+ 
+as = x(1); 
+bs = x(2); 
+
+
+%%                  Parameter estimation for mRNA 
+
+yMin = [100 .01 0 0 .001]; 
+yMax = [3000 .5 .001 5000 1];
+
+y0 = [248 .19 3.2256e-4 45 .03]; 
+
+y = fmincon(@(y) model4mpdat(y,sDat,mDat,pDat,tDat,as,bs),y0,[],[],[],[],yMin,yMax,[],options); 
+
+am = y(1); 
+bm = y(2); 
+gs = y(3); 
+ap = y(4); 
+bp = y(5); 
+
+
+%  am = 248.5884; 
+%  bm = .185;
+%  gs = 3.0256e-4; 
+
+
+%%                Running ODE model 
+% ap = 1.7186; 
+% bp = .03; 
+
+
+TLim = 100; 
+
+x0 = [mDat(1); sDat(1); pDat(1)]; 
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,am,bm,gs,as,bs,ap,bp),[0 TLim],x0); 
+
+figure(4) 
+plot(Tout,Yout(:,1),tDat,mDat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('m Sim','m Real');
+
+figure(5) 
+plot(Tout,Yout(:,2),tDat,sDat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('s Sim','s Real');
+
+figure(6) 
+plot(Tout,Yout(:,3),tDat,pDat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('p Sim','p Real');
+
+mkdir(savName); 
+saveas(4,strcat('.\',savName,'\model4mRNACont.jpg'));
+saveas(5,strcat('.\',savName,'\model4miRNACont.jpg'));
+saveas(6,strcat('.\',savName,'\model4pCont.jpg'));
+
+
+save(strcat('.\',savName,'\model4params'),'am','bm','gs','ap','bp','as','bs');
+
+%% Optional Section (plotting open loop with current parameters) 
+
+TLim = 100; 
+
+x0 = [mODat(1); sODat(1); pODat(1)]; 
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,am,bm,0,as,bs,ap,bp),[0 TLim],x0); 
+
+figure(7) 
+plot(Tout,Yout(:,1),tODat,mODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('m Sim','m Real');
+
+figure(8) 
+plot(Tout,Yout(:,2),tODat,sODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('s Sim','s Real');
+
+figure(9) 
+plot(Tout,Yout(:,3),tODat,pODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('p Sim','p Real');
+
+mkdir(savName); 
+saveas(7,strcat('.\',savName,'\model4mRNAopenCont.jpg'));
+saveas(8,strcat('.\',savName,'\model4miRNAopenCont.jpg'));
+saveas(9,strcat('.\',savName,'\model4popenCont.jpg'));
+
+%% Optional Section (plotting open loop with updated parameters) 
+
+%parameter estimation for mRNA
+yMin = [100 bm 0 0 bp]; 
+yMax = [3000 bm 0 5000 bp];
+
+y0 = [248 bm 0 45 bp]; 
+
+y = fmincon(@(y) model4mpdat(y,sODat,mODat,pODat,tODat,as,bs),y0,[],[],[],[],yMin,yMax,[],options); 
+
+amo = y(1); 
+bmo = y(2); 
+gso = y(3); 
+apo = y(4); 
+bpo = y(5); 
+
+% plotting 
+
+TLim = 100; 
+
+x0 = [mODat(1); sODat(1); pODat(1)]; 
+
+[Tout,Yout] = ode45(@(t,x) model2sdatcont(t,x,amo,bmo,gso,as,bs,apo,bpo),[0 TLim],x0); 
+
+figure(10) 
+plot(Tout,Yout(:,1),tODat,mODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('m Sim','m Real');
+
+figure(11) 
+plot(Tout,Yout(:,2),tODat,sODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('s Sim','s Real');
+
+figure(12) 
+plot(Tout,Yout(:,3),tODat,pODat,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('p Sim','p Real');
+
+% Saving stuff 
+
+mkdir(savName); 
+saveas(10,strcat('.\',savName,'\model4mRNAopenContUpdated.jpg'));
+saveas(11,strcat('.\',savName,'\model4miRNAopenContUpdated.jpg'));
+saveas(12,strcat('.\',savName,'\model4popenContUpdated.jpg'));
+
+save(strcat('.\',savName,'\model4paramsUpdated'),'amo','bmo','gso','apo','bpo','as','bs');
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,94 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%             Model Fitting IFFL 
+%                                  Sumit Mukherjee 
+%
+%         
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc; 
+clear; 
+close all; 
+
+%%                      Initialization
+
+mRange = 'D2:D7';
+sRange = 'D8:D13'; 
+tRange = 'C2:C7';
+pRange = 'D14:D18';
+datFile = 'AlexIFFLdata.xls';
+
+
+mDat = xlsread(datFile,mRange); 
+sDat = xlsread(datFile,sRange);
+tDat = xlsread(datFile,tRange);
+pDat = xlsread(datFile,pRange);
+
+%%                     Parameter Estimation  for mCherry protein
+
+xMin = [0 .02]; 
+xMax = [500 1]; 
+% xMax = 1e3*ones(4,1); 
+% phi = [am bm gs as bs];
+
+x0 = [ 45 .03]; 
+
+options=optimset('Algorithm','active-set','MaxFunEvals',1e6,'MaxIter',1e6,'TolCon',1e-9,'TolFun',1e-9,'TolX',1e-9);
+
+x = fmincon(@(x) model2sdat(x,sDat,tDat),x0,[],[],[],[],xMin,xMax,[],options); 
+
+ 
+as = x(1); 
+bs = x(2); 
+
+%%                  Parameter estimation for mRNA 
+
+yMin = [0 .05 0]; 
+yMax = [500 .5 .001];
+
+y0 = [40 .10 .000001]; 
+
+y = fmincon(@(y) model2mdat(y,mDat,sDat,tDat,as,bs),y0,[],[],[],[],yMin,yMax,[],options); 
+
+am = y(1); 
+bm = y(2); 
+gs = y(3); 
+
+% am = 193.5477; 
+% bm = .1640;
+% gs = .0003; 
+
+%%               Plotting 
+
+s = sDat(1); 
+m = mDat(1);
+sRec = s; 
+mRec = m; 
+
+for i=1:5
+
+T = tDat(i+1)-tDat(i);    
+
+m = am*T + (1-bm*T)*m - gs*m*s*T;  
+s = as*T + (1-bs*T)*s ;
+
+mRec = [mRec;m];
+sRec = [sRec;s];
+
+end
+
+
+figure(1) 
+plot(tDat,mDat,tDat,mRec,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('m Real','m Sim');
+
+saveas(1,'model2mRNA.jpg');
+
+
+
+figure(2)
+plot(tDat,sDat,tDat,sRec,'LineWidth',3);
+xlabel('Time (hours)'); ylabel('Conc.'); 
+legend('s Real','s Sim');
+
+saveas(2,'model2miRNA.jpg');

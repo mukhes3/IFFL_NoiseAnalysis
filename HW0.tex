@@ -1,0 +1,234 @@
+\documentclass{article}
+
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{epsfig}
+\usepackage{amsmath}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\Hrule}{\rule{\linewidth}{0.3mm}}
+
+\makeatletter% since there's an at-sign (@) in the command name
+\renewcommand{\@maketitle}{
+  \parindent=0pt% don't indent paragraphs in the title block
+  \begin{center}
+    \MakeUppercase{\Large \bf \@title}
+    \HRule%
+  \end{center}%
+  \textit{\@author \hfill \@date}
+  \par
+}
+\makeatother% resets the meaning of the at-sign (@)
+
+\title{Probability and Random Processes : Homework 0}
+\author{\bf SUMIT MUKHERJEE}
+\date{\bf  mukhes3@uw.edu}
+
+\begin{document}
+
+\maketitle% prints the title block
+\vspace{5 mm}
+
+{\bf 3.18} Path in network is reserved for 10 minutes. Refresh images are lost with probability $0.5$. Time taken for 1 refresh image is 10 seconds. \\
+Let no. of refresh messages required to have 99\% chance of extending reservation be n. Thus,
+\begin{align*}
+1 - (.5)^n &= 0.99 \\
+or, 0.01 &= (.5)^n \\
+or, n &= 6.6469.   
+\end{align*}
+Since, n must belong to the set of positive integers, so, n is taken to be 7. So, the computer has to start sending messages 70 seconds in advance. 
+
+\vspace{5 mm}
+
+{\bf 3.35 a} Carlos and Michael each flip a coin twice. X is a random variable that denotes the maximum no. of Heads. So, 
+\begin{align*}
+S = \{HHHH, HHHT,HHTH,HTHH,THHH,THHT,HTTH,THTH,HTHT, \\ TTHH,HHTT, TTTH, TTHT, THTT, HTTT, TTTT\} \\
+S_X = \{ 0,1,2 \}
+\end{align*}
+Let, A be the event that X>0. Thus, the conditional PMF is given by :
+\begin{align*}
+Pr ( X = 1 | A) = \frac{8}{15}\\
+Pr ( X = 2 | A) = \frac{7}{15}. 
+\end{align*}
+This is obtained by using the relation $Pr(A) = $ (No. of ways A can happen)/(Total no. of ways). In this case, the total number of ways is 15 (since the TTTT case is eliminated). \\
+
+{\bf b)} Let B be the event that Michael got 1 head in 2 tosses. This can happen in two ways namely $\{HT,TH\}$. Carlos however, still has the same 4 possible outcomes available to him as last time. So, total number of ways is no $4 \times 2 = 8$. So, the new PMF is given by :
+\begin{align*}
+Pr ( X = 1 | B) &= \frac{6}{8} = \frac{3}{4}\\
+Pr ( X = 2 | B) &= \frac{2}{8} = \frac{1}{4}. 
+\end{align*} 
+This comes from the fact that X = 2 , can only happen if Carlos can get two heads. This can happen in $2 \times 1 = 2$ ways. And since, X cannot be 0, X = 1 can happen in $8 - 2 = 6$ ways. \\
+
+
+{\bf c)} Let C be the event that Michael got 1 head in the first toss. So, now michael has one head in the first toss. This means his possible set of outcomes is $\{HT,HH\}$. Carlos still has his 4 possible outcomes. So, now the total number of ways is still $4 \times 2 = 8$. X = 0 is not possible since Michaels first toss is already a heads. X = 1, can happen in $3 \times 1 = 3$ ways and X = 2 , can happen in $8 -  3 = 5$ ways. So, the PMF is given by :
+\begin{align*}
+Pr ( X = 1 | C) &= \frac{3}{8} \\
+Pr ( X = 2 | C) &= \frac{5}{8}. 
+\end{align*} 
+So, we see a much higher probability of X = 2 in this case. \\
+
+{\bf d)} Now, Carlos tosses a coin with a $p=\frac{3}{4}$ probability of heads. So, the PMF is given by : 
+\begin{align*}
+Pr ( X = 0 ) &= \frac{(1-p)^2}{4} = \frac{1}{64} \\
+Pr ( X = 1 ) &= 2p(1-p) \frac{3}{4} + (1-p)^2 \frac{2}{4} = \frac{20}{64} \\
+Pr ( X = 2 ) &= p^2 \frac{4}{4} + 2p(1-p)\frac{1}{4} +  (1-p)^2 \frac{1}{4} = \frac{43}{64}
+\end{align*}
+
+Let, D be the event that Carlos gets 2 heads. So, : 
+\begin{align*}
+Pr ( X = 2 | D) = \frac{p^2 \frac{4}{4}}{p^2 \frac{4}{4} + 2p(1-p)\frac{1}{4} +  (1-p)^2 \frac{1}{4}} = \frac{36}{43}
+\end{align*}
+
+\vspace{5 mm}
+
+{\bf 3.59 } The number of page requests that arrive at a Web server is a Poisson random variable
+with an average of 6000 requests ($\lambda $) per minute. This translates to 10 requests / 100 ms. \\
+
+{\bf a)} The probability that there are no requests in a 100-ms period is given by : 
+\begin{align*}
+Pr (X=0) = \frac{\lambda^0}{0!} e^{-\lambda} = \frac{1}{e^{10}}
+\end{align*}
+\vspace{2 mm}
+{\bf b)} The probability that there are between 5 to 10 requests in a 100-ms period is given by :
+\begin{align*}
+Pr (5 \leq X \leq 10) = \sum_{k = 5}^{10} \frac{\lambda^k}{k!} e^{-\lambda} = \sum_{k = 5}^{10} \frac{10^k}{k!} e^{-\lambda}
+\end{align*}
+
+\vspace{5 mm }
+
+{\bf 4.4 a)} An Urn contains 8 \$1 bills and two \$5 bills. Let X be the total amount that results when two bills are drawn from the urn \textit{without replacement}, and let Y be the total amount that results when two bills are drawn from the urn \textit{with replacement}. So, we see : 
+\begin{align*}
+S_X = \{2 , 6, 10\} \\
+S_Y = \{2, 6, 10 \} 
+\end{align*}
+
+So, for X, the PMF is given by : 
+\begin{align*}
+Pr(X=2) = \frac{8}{10} \times \frac{7}{9} = \frac{56}{90} \\
+Pr(X=6) = 2 \frac{8}{10} \times \frac{2}{9} = \frac{32}{90} \\
+Pr(X=10) = \frac{2}{10} \times \frac{1}{9} = \frac{2}{90} 
+\end{align*}
+Hence, the CDF for X is given by : 
+\begin{align*}
+Pr(X \leq 2) =  \frac{56}{90} \\
+Pr(X \leq 6) =  \frac{88}{90} \\
+Pr(X \leq 10) = 1 
+\end{align*}
+
+The CDF plot is shown in figure~\ref{Xcdf}.
+
+\begin{figure} [h!]
+\centering
+\includegraphics[scale=.45]{4p4X.jpg}
+\caption{CDF of X}
+\label{Xcdf}
+\end{figure}
+
+For, Y, the PMF is given by : 
+\begin{align*}
+Pr(Y=2) = \frac{8}{10} \times \frac{8}{10} = \frac{64}{100} \\
+Pr(Y=6) = 2 \frac{8}{10} \times \frac{2}{10} = \frac{32}{100} \\
+Pr(Y=10) = \frac{2}{10} \times \frac{2}{10} = \frac{4}{100} 
+\end{align*}
+Hence, the CDF for Y is given by : 
+\begin{align*}
+Pr(X \leq 2) =  \frac{64}{100} \\
+Pr(X \leq 6) =  \frac{96}{100} \\
+Pr(X \leq 10) = 1 
+\end{align*}
+
+The CDF plot is shown in figure~\ref{Ycdf}.
+
+\begin{figure} [h!]
+\centering
+\includegraphics[scale=.45]{4p4Y.jpg}
+\caption{CDF of Y}
+\label{Ycdf}
+\end{figure}
+
+{\bf 4.6)} Radius of dart board = 2. R = distance of the dart from the origin (after it lands on the board). \\
+
+{\bf a) }  
+\begin{align*}
+S &= \{ (x,y) \forall x^2 + y^2 \leq 4 \& x,y > 0 \}  \\
+S_R &= [0,2]
+\end{align*}
+\vspace{2 mm}
+
+{\bf c)} The “bull’s eye” is the central disk in the target of radius 0.25. Let, event A be the event tha the dart hits the bull’s eye. So, 
+\begin{align*}
+Pr(A) = \frac{\pi \times {0.25}^2}{\pi \times {2}^2} = \frac{1}{64}
+\end{align*}
+
+{\bf d)} The CDF of R is given by : 
+\begin{align*}
+F_R(0)=Pr(R \leq 0) &= 0 \\
+F_R(r)=Pr(R \leq r) &= \frac{r^2}{4} , (\forall r \in (0,2]) \\
+F_R(r)=Pr(R \leq r) &= 1 , (\forall r \geq 2)
+\end{align*}
+
+The plot is seen in Figure~\ref{Rcdf}. 
+
+\begin{figure} [h!]
+\centering
+\includegraphics[scale=.45]{4p6d.jpg}
+\caption{CDF of R}
+\label{Rcdf}
+\end{figure}
+
+\vspace{5 mm}
+{\bf 4.19 a)} The pdf of R (say $p_R$) is obtained by $\frac{d F_R}{dr}$ and yields :
+\begin{align*}
+p_R(r) &= 0 , (\forall r \leq 0)\\
+p_R(r) &= \frac{r}{2} , (\forall r \in (0,2]) \\
+p_R(r) &= 1 , (\forall r \geq 2)
+\end{align*}
+
+The plot is seen in Figure~\ref{Rcdf}. 
+
+\begin{figure} [h!]
+\centering
+\includegraphics[scale=.45]{4p19a.jpg}
+\caption{PDF of R}
+\label{Rpdf}
+\end{figure}
+
+\vspace{5 mm}
+
+{\bf 4.41 } The expected value of R is given by :
+\begin{align*}
+E[R] = \int_{0}^{2}\frac{r^2}{2} dr = \frac{4}{3}
+\end{align*}
+
+The Variance of R is given by :
+\begin{align*}
+Var(R) = E[{(R-E[R])}^2] = \int_{0}^{2}\frac{r}{2}(r - \frac{4}{3})^2 dr = .222222
+\end{align*}
+
+\vspace{ 5 mm}
+
+{\bf 4.61} X is an exponential random variable with parameter $\lambda$. \\
+
+{\bf a)} 
+\begin{align*}
+Pr[kd < X < (k + 1)d] &= \int_{k d}^{(k+1) d} \lambda \exp(-\lambda x) dx \\
+                     &= \exp(-\lambda k d) - \exp(-\lambda (k+1) d)
+\end{align*}
+
+\vspace{2 mm}
+
+{\bf b)}  Let, [0,a],[a,b],[b,c] and [c,$\infty$] be the 4 disjoint intervals which have the same probability. Thus these satisfy :
+
+\begin{align*}
+ 1- \exp(-\lambda a) = \exp(-\lambda a) - \exp(-\lambda b) = \exp(-\lambda b) - \exp(-\lambda c) = \exp(-\lambda c)
+\end{align*}
+ 
+So, we see that : 
+\begin{align*}
+1- \exp(-\lambda a) &=  \exp(-\lambda c) \\
+\&, \exp(-\lambda b) &= 2 \exp(-\lambda a) -1 \\
+\&, \exp(-\lambda b) &= 2 \exp(-\lambda c) = 2 (1 -\exp(-\lambda a) )\\
+so, 2 \exp(-\lambda a) -1 &= 2 (1 -\exp(-\lambda a) ) \\ 
+Thus, a &= \frac{1}{\lambda} \log(\frac{4}{3})
+\end{align*} 
+Similarly, we get $b = \frac{1}{\lambda} \log(2)$ and $b = \frac{1}{\lambda} \log(4)$. (Note :- All logarithms here are of base e).  
+
+\end{document}
